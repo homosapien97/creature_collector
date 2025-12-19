@@ -78,7 +78,9 @@ def show_world():
                 row.append(terrain_symbols[terrain_type])
         grid_display.append(" ".join(row))
 
-    st.text("\n".join(grid_display))
+    # Display grid with monospace font
+    grid_text = "\n".join(grid_display)
+    st.markdown(f"```\n{grid_text}\n```")
 
     # Movement controls
     st.write("---")
