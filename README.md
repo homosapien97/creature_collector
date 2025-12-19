@@ -5,6 +5,7 @@ A single-player creature collecting game with turn-based battles and strategic c
 ## Features
 
 - **Turn-Based Battles**: Choose from multiple actions for your creatures, with real-time skill events during attacks to test your reflexes
+- **World Exploration**: Explore a grid-based world
 - **Creature Fusion**: Combine creatures using a deterministic system with special combinations that produce unique results
 - **Item Gacha**: Collect items through gacha mechanics (creatures are obtained through other means)
 - **Pixel Art**: Charming pixel-art sprites for all creatures
@@ -34,18 +35,10 @@ cd creature_collector
 ./setup.sh
 ```
 
-Or manually set up the environment:
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
 ### Running the Game
 
 ```bash
-source venv/bin/activate
-streamlit run main.py
+./run.sh
 ```
 
 The game will open in your default web browser.
