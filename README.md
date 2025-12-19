@@ -1,7 +1,55 @@
-This is a creature collector game.
-The game will be written with a python backend, and we may eventually have a web frontend. Use Streamlit for the python backend.
-It is single player for now, but we might eventually add multiplayer battles.
-There will be turn-based battles, where the player can select one of many possible actions for their creature, and when attacking there is a real-time event to test the player's skill.
-There will be pixel-art sprites for the creatures.
-There will be gacha mechanics outside of battle, for items, but not for creatures.
-There will be a way to combine creatures, with predictable special combinations that create cool creatures.
+# Creature Collector
+
+A single-player creature collecting game with turn-based battles and strategic creature fusion mechanics.
+
+## Features
+
+- **Turn-Based Battles**: Choose from multiple actions for your creatures, with real-time skill events during attacks to test your reflexes
+- **Creature Fusion**: Combine creatures using a deterministic system with special combinations that produce unique results
+- **Item Gacha**: Collect items through gacha mechanics (creatures are obtained through other means)
+- **Pixel Art**: Charming pixel-art sprites for all creatures
+- **Streamlit UI**: Clean, responsive interface built with Streamlit
+
+## Planned Features
+
+- Web frontend for cross-platform play
+- Multiplayer battle mode
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.8 or higher
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/creature_collector.git
+cd creature_collector
+```
+
+2. Run the setup script:
+```bash
+./setup.sh
+```
+
+Or manually set up the environment:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Running the Game
+
+```bash
+source venv/bin/activate
+streamlit run main.py
+```
+
+The game will open in your default web browser.
+
+## Development Status
+
+This project is currently in early development. Core systems are being implemented.
