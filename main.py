@@ -1,19 +1,23 @@
 import streamlit as st
 import numpy as np
-from enum import Enum
 
-# Game state management
-class GameScreen(Enum):
-    MENU = "menu"
-    WORLD = "world"
-    BATTLE = "battle"
-    COLLECTION = "collection"
-    GACHA = "gacha"
-    COMBINE = "combine"
+st.set_page_config(
+    page_title="Creature Collector",
+    page_icon="🐉",
+    layout="wide"
+)
+
+# Screen constants
+SCREEN_MENU = "menu"
+SCREEN_WORLD = "world"
+SCREEN_BATTLE = "battle"
+SCREEN_COLLECTION = "collection"
+SCREEN_GACHA = "gacha"
+SCREEN_COMBINE = "combine"
 
 # Initialize session state
 if 'screen' not in st.session_state:
-    st.session_state.screen = GameScreen.MENU
+    st.session_state.screen = SCREEN_MENU
 if 'player_creatures' not in st.session_state:
     st.session_state.player_creatures = []  # Will hold player's creature collection
 if 'player_items' not in st.session_state:
@@ -34,24 +38,24 @@ def show_menu():
 
     with col1:
         if st.button("Explore World", use_container_width=True):
-            st.session_state.screen = GameScreen.WORLD
+            st.session_state.screen = SCREEN_WORLD
             st.rerun()
 
         if st.button("Battle", use_container_width=True):
-            st.session_state.screen = GameScreen.BATTLE
+            st.session_state.screen = SCREEN_BATTLE
             st.rerun()
 
         if st.button("Collection", use_container_width=True):
-            st.session_state.screen = GameScreen.COLLECTION
+            st.session_state.screen = SCREEN_COLLECTION
             st.rerun()
 
     with col2:
         if st.button("Gacha (Items)", use_container_width=True):
-            st.session_state.screen = GameScreen.GACHA
+            st.session_state.screen = SCREEN_GACHA
             st.rerun()
 
         if st.button("Combine Creatures", use_container_width=True):
-            st.session_state.screen = GameScreen.COMBINE
+            st.session_state.screen = SCREEN_COMBINE
             st.rerun()
 
 def show_world():
@@ -115,7 +119,7 @@ def show_world():
 
     st.write("---")
     if st.button("Back to Menu"):
-        st.session_state.screen = GameScreen.MENU
+        st.session_state.screen = SCREEN_MENU
         st.rerun()
 
 def show_battle():
@@ -123,7 +127,7 @@ def show_battle():
     st.write("Battle system - coming soon")
 
     if st.button("Back to Menu"):
-        st.session_state.screen = GameScreen.MENU
+        st.session_state.screen = SCREEN_MENU
         st.rerun()
 
 def show_collection():
@@ -136,7 +140,7 @@ def show_collection():
             st.write(f"- {creature}")
 
     if st.button("Back to Menu"):
-        st.session_state.screen = GameScreen.MENU
+        st.session_state.screen = SCREEN_MENU
         st.rerun()
 
 def show_gacha():
@@ -144,7 +148,7 @@ def show_gacha():
     st.write("Gacha system for items - coming soon")
 
     if st.button("Back to Menu"):
-        st.session_state.screen = GameScreen.MENU
+        st.session_state.screen = SCREEN_MENU
         st.rerun()
 
 def show_combine():
@@ -152,30 +156,26 @@ def show_combine():
     st.write("Creature combination system - coming soon")
 
     if st.button("Back to Menu"):
-        st.session_state.screen = GameScreen.MENU
+        st.session_state.screen = SCREEN_MENU
         st.rerun()
 
 # Main app routing
 def main():
-    st.set_page_config(
-        page_title="Creature Collector",
-        page_icon="🐉",
-        layout="wide"
-    )
-
     # Route to appropriate screen
-    if st.session_state.screen == GameScreen.MENU:
+    if st.session_state.screen == SCREEN_MENU:
         show_menu()
-    elif st.session_state.screen == GameScreen.WORLD:
+    elif st.session_state.screen == SCREEN_WORLD:
         show_world()
-    elif st.session_state.screen == GameScreen.BATTLE:
+    elif st.session_state.screen == SCREEN_BATTLE:
         show_battle()
-    elif st.session_state.screen == GameScreen.COLLECTION:
+    elif st.session_state.screen == SCREEN_COLLECTION:
         show_collection()
-    elif st.session_state.screen == GameScreen.GACHA:
+    elif st.session_state.screen == SCREEN_GACHA:
         show_gacha()
-    elif st.session_state.screen == GameScreen.COMBINE:
+    elif st.session_state.screen == SCREEN_COMBINE:
         show_combine()
+    else:
+        show_menu()  # Fallback to menu
 
 if __name__ == "__main__":
     main()
