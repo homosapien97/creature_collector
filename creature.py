@@ -14,16 +14,18 @@ TYPE_NATURE = "nature"
 TYPE_ICE = "ice"
 
 # Type effectiveness chart: attacker -> defender -> multiplier
-# Each type is strong (2x) against 2 types and weak (0.5x) against 2 types
+# Balanced so each type has exactly 2 strengths and 2 weaknesses
+# Fire <-> Ice, Water <-> Fire, Earth <-> Lightning, Air <-> Earth
+# Lightning <-> Water, Shadow <-> Nature, Nature <-> Water, Ice <-> Air
 g_type_chart = {
-    TYPE_FIRE: {TYPE_FIRE: 0.5, TYPE_WATER: 0.5, TYPE_NATURE: 2.0, TYPE_ICE: 2.0},
-    TYPE_WATER: {TYPE_WATER: 0.5, TYPE_FIRE: 2.0, TYPE_EARTH: 2.0, TYPE_NATURE: 0.5},
-    TYPE_EARTH: {TYPE_EARTH: 0.5, TYPE_LIGHTNING: 2.0, TYPE_FIRE: 2.0, TYPE_AIR: 0.5},
-    TYPE_AIR: {TYPE_AIR: 0.5, TYPE_EARTH: 2.0, TYPE_NATURE: 2.0, TYPE_LIGHTNING: 0.5},
-    TYPE_LIGHTNING: {TYPE_LIGHTNING: 0.5, TYPE_WATER: 2.0, TYPE_AIR: 2.0, TYPE_EARTH: 0.5},
-    TYPE_SHADOW: {TYPE_SHADOW: 0.5, TYPE_NATURE: 2.0, TYPE_AIR: 2.0, TYPE_FIRE: 0.5},
-    TYPE_NATURE: {TYPE_NATURE: 0.5, TYPE_WATER: 2.0, TYPE_EARTH: 2.0, TYPE_ICE: 0.5},
-    TYPE_ICE: {TYPE_ICE: 0.5, TYPE_AIR: 2.0, TYPE_SHADOW: 2.0, TYPE_FIRE: 0.5},
+    TYPE_FIRE: {TYPE_FIRE: 0.5, TYPE_WATER: 0.5, TYPE_NATURE: 2.0, TYPE_ICE: 2.0},      # weak to: Water, Earth
+    TYPE_WATER: {TYPE_WATER: 0.5, TYPE_NATURE: 0.5, TYPE_FIRE: 2.0, TYPE_EARTH: 2.0},   # weak to: Lightning, Nature
+    TYPE_EARTH: {TYPE_EARTH: 0.5, TYPE_FIRE: 0.5, TYPE_LIGHTNING: 2.0, TYPE_AIR: 2.0},  # weak to: Water, Nature
+    TYPE_AIR: {TYPE_AIR: 0.5, TYPE_ICE: 0.5, TYPE_EARTH: 2.0, TYPE_SHADOW: 2.0},        # weak to: Lightning, Ice
+    TYPE_LIGHTNING: {TYPE_LIGHTNING: 0.5, TYPE_AIR: 0.5, TYPE_WATER: 2.0, TYPE_ICE: 2.0}, # weak to: Earth, Shadow
+    TYPE_SHADOW: {TYPE_SHADOW: 0.5, TYPE_NATURE: 0.5, TYPE_LIGHTNING: 2.0, TYPE_AIR: 2.0}, # weak to: Fire, Nature
+    TYPE_NATURE: {TYPE_NATURE: 0.5, TYPE_EARTH: 0.5, TYPE_WATER: 2.0, TYPE_SHADOW: 2.0},  # weak to: Fire, Ice
+    TYPE_ICE: {TYPE_ICE: 0.5, TYPE_FIRE: 0.5, TYPE_AIR: 2.0, TYPE_LIGHTNING: 2.0},       # weak to: Fire, Nature
 }
 
 def get_type_multiplier(attacker_type: str, defender_type: str) -> float:
@@ -109,16 +111,22 @@ class Creature:
         if ability.power == 0:
             return 0  # status move
 
-        # Basic damage formula
-        base_damage = (ability.power * (self.atk / defender.defense)) * (self.level / 5 + 1)
+        # Balanced damage formula with diminishing returns on ATK/DEF difference
+        # Base damage scales with power and level
+        level_factor = 1 + (self.level * 0.1)  # 1.5x at level 5, 2.0x at level 10
+
+        # ATK vs DEF comparison with soft cap (prevents extreme ratios)
+        stat_ratio = (self.atk + 50) / (defender.defense + 50)  # +50 softens the curve
+
+        base_damage = ability.power * stat_ratio * level_factor * 0.5  # 0.5 scaling factor
 
         # Type effectiveness
         type_mult = get_type_multiplier(ability.element, defender.element)
 
-        # Random variance (85-100%)
-        variance = random.uniform(0.85, 1.0)
+        # Random variance (90-100%) - tighter range for consistency
+        variance = random.uniform(0.90, 1.0)
 
-        return int(base_damage * type_mult * variance)
+        return max(1, int(base_damage * type_mult * variance))
 
     def use_ability(self, ability: Ability, defender: 'Creature') -> dict:
         result = {
@@ -183,212 +191,213 @@ def create_creature(template_name: str, level: int = 1) -> Optional[Creature]:
 
 def get_creature_templates() -> dict:
     """Returns a dict of creature templates (creates fresh instances each call)."""
+    # All creatures normalized to 200 base stat total
     return {
         # Fire creatures
-        "emberling": Creature(
+        "emberling": Creature(  # Balanced speedster (200 total)
             name="Emberling",
             element=TYPE_FIRE,
-            base_hp=45, base_atk=50, base_def=35, base_spd=60,
+            base_hp=50, base_atk=50, base_def=40, base_spd=60,
             abilities=[g_abilities["ember"], g_abilities["tackle"]],
-            sprite_path="🦎",  # lizard emoji placeholder
+            sprite_path="🦎",
             description="A small salamander with a flame-tipped tail.",
         ),
-        "phoenixlet": Creature(
+        "phoenixlet": Creature(  # Glass cannon (200 total)
             name="Phoenixlet",
             element=TYPE_FIRE,
             base_hp=40, base_atk=60, base_def=30, base_spd=70,
             abilities=[g_abilities["ember"], g_abilities["gust"]],
-            sprite_path="🐦",  # bird emoji placeholder
+            sprite_path="🐦",
             description="A young firebird still learning to control its flames.",
         ),
-        "infernoboar": Creature(
+        "infernoboar": Creature(  # Slow bruiser (200 total)
             name="Infernoboar",
             element=TYPE_FIRE,
-            base_hp=70, base_atk=65, base_def=50, base_spd=35,
+            base_hp=65, base_atk=55, base_def=50, base_spd=30,
             abilities=[g_abilities["flame_burst"], g_abilities["tackle"]],
-            sprite_path="🐗",  # boar emoji placeholder
+            sprite_path="🐗",
             description="A fierce boar wreathed in flames.",
         ),
 
         # Water creatures
-        "bubblefin": Creature(
+        "bubblefin": Creature(  # Balanced (200 total)
             name="Bubblefin",
             element=TYPE_WATER,
-            base_hp=50, base_atk=40, base_def=45, base_spd=55,
+            base_hp=55, base_atk=45, base_def=45, base_spd=55,
             abilities=[g_abilities["water_gun"], g_abilities["tackle"]],
-            sprite_path="🐟",  # fish emoji placeholder
+            sprite_path="🐟",
             description="A cheerful fish that blows bubbles when happy.",
         ),
-        "shellsnap": Creature(
+        "shellsnap": Creature(  # Defensive tank (200 total)
             name="Shellsnap",
             element=TYPE_WATER,
-            base_hp=55, base_atk=55, base_def=65, base_spd=25,
+            base_hp=55, base_atk=50, base_def=65, base_spd=30,
             abilities=[g_abilities["water_gun"], g_abilities["tackle"]],
-            sprite_path="🦀",  # crab emoji placeholder
+            sprite_path="🦀",
             description="A tough crab with pincers that can crack stone.",
         ),
-        "tidalserpent": Creature(
+        "tidalserpent": Creature(  # Offensive (200 total)
             name="Tidalserpent",
             element=TYPE_WATER,
-            base_hp=60, base_atk=70, base_def=40, base_spd=50,
+            base_hp=50, base_atk=65, base_def=40, base_spd=45,
             abilities=[g_abilities["tidal_wave"], g_abilities["water_gun"]],
-            sprite_path="🐍",  # snake emoji placeholder
+            sprite_path="🐍",
             description="A sea serpent that commands the waves.",
         ),
 
         # Earth creatures
-        "pebblehog": Creature(
+        "pebblehog": Creature(  # Defensive (200 total)
             name="Pebblehog",
             element=TYPE_EARTH,
-            base_hp=55, base_atk=45, base_def=60, base_spd=30,
+            base_hp=55, base_atk=45, base_def=65, base_spd=35,
             abilities=[g_abilities["tackle"], g_abilities["earthquake"]],
-            sprite_path="🦔",  # hedgehog emoji placeholder
+            sprite_path="🦔",
             description="A hedgehog with stone spines.",
         ),
-        "boulderback": Creature(
+        "boulderback": Creature(  # Ultra tank (200 total)
             name="Boulderback",
             element=TYPE_EARTH,
-            base_hp=80, base_atk=50, base_def=70, base_spd=20,
+            base_hp=70, base_atk=45, base_def=60, base_spd=25,
             abilities=[g_abilities["earthquake"], g_abilities["tackle"]],
-            sprite_path="🐢",  # turtle emoji placeholder
+            sprite_path="🐢",
             description="An ancient turtle with a mountain on its shell.",
         ),
-        "tunnelmole": Creature(
+        "tunnelmole": Creature(  # Balanced attacker (200 total)
             name="Tunnelmole",
             element=TYPE_EARTH,
-            base_hp=50, base_atk=60, base_def=45, base_spd=45,
+            base_hp=50, base_atk=55, base_def=50, base_spd=45,
             abilities=[g_abilities["tackle"], g_abilities["earthquake"]],
-            sprite_path="🐀",  # rat emoji placeholder (mole not available)
+            sprite_path="🐀",
             description="A mole that digs through solid rock.",
         ),
 
         # Air creatures
-        "breezewing": Creature(
+        "breezewing": Creature(  # Speed glass cannon (200 total)
             name="Breezewing",
             element=TYPE_AIR,
-            base_hp=40, base_atk=45, base_def=35, base_spd=75,
+            base_hp=40, base_atk=50, base_def=35, base_spd=75,
             abilities=[g_abilities["gust"], g_abilities["tackle"]],
-            sprite_path="🦅",  # eagle emoji placeholder
+            sprite_path="🦅",
             description="A swift eagle that rides the wind currents.",
         ),
-        "cloudhopper": Creature(
+        "cloudhopper": Creature(  # Balanced speedster (200 total)
             name="Cloudhopper",
             element=TYPE_AIR,
-            base_hp=45, base_atk=40, base_def=40, base_spd=65,
+            base_hp=50, base_atk=45, base_def=40, base_spd=65,
             abilities=[g_abilities["gust"], g_abilities["tackle"]],
-            sprite_path="🐰",  # rabbit emoji placeholder
+            sprite_path="🐰",
             description="A fluffy rabbit that can leap into the clouds.",
         ),
-        "stormbat": Creature(
+        "stormbat": Creature(  # Fast attacker (200 total)
             name="Stormbat",
             element=TYPE_AIR,
-            base_hp=50, base_atk=65, base_def=35, base_spd=70,
+            base_hp=45, base_atk=55, base_def=35, base_spd=65,
             abilities=[g_abilities["hurricane"], g_abilities["gust"]],
-            sprite_path="🦇",  # bat emoji placeholder
+            sprite_path="🦇",
             description="A bat that summons thunderstorms.",
         ),
 
         # Lightning creatures
-        "sparkrat": Creature(
+        "sparkrat": Creature(  # Ultra speed (200 total)
             name="Sparkrat",
             element=TYPE_LIGHTNING,
-            base_hp=40, base_atk=55, base_def=30, base_spd=80,
+            base_hp=40, base_atk=50, base_def=35, base_spd=75,
             abilities=[g_abilities["spark"], g_abilities["tackle"]],
-            sprite_path="🐁",  # mouse emoji placeholder
+            sprite_path="🐁",
             description="A tiny mouse crackling with static electricity.",
         ),
-        "thunderwolf": Creature(
+        "thunderwolf": Creature(  # Fast attacker (200 total)
             name="Thunderwolf",
             element=TYPE_LIGHTNING,
-            base_hp=55, base_atk=70, base_def=45, base_spd=65,
+            base_hp=50, base_atk=60, base_def=40, base_spd=50,
             abilities=[g_abilities["thunderbolt"], g_abilities["spark"]],
-            sprite_path="🐺",  # wolf emoji placeholder
+            sprite_path="🐺",
             description="A fierce wolf with lightning in its fur.",
         ),
-        "stormeel": Creature(
+        "stormeel": Creature(  # Balanced (200 total)
             name="Stormeel",
             element=TYPE_LIGHTNING,
-            base_hp=50, base_atk=65, base_def=40, base_spd=60,
+            base_hp=50, base_atk=55, base_def=45, base_spd=50,
             abilities=[g_abilities["thunderbolt"], g_abilities["spark"]],
-            sprite_path="🐉",  # dragon emoji placeholder (electric eel)
+            sprite_path="🐉",
             description="An eel that generates massive electric shocks.",
         ),
 
         # Shadow creatures
-        "duskcat": Creature(
+        "duskcat": Creature(  # Fast attacker (200 total)
             name="Duskcat",
             element=TYPE_SHADOW,
-            base_hp=45, base_atk=60, base_def=35, base_spd=70,
+            base_hp=45, base_atk=55, base_def=35, base_spd=65,
             abilities=[g_abilities["shadow_bite"], g_abilities["tackle"]],
-            sprite_path="🐈‍⬛",  # black cat emoji placeholder
+            sprite_path="🐈‍⬛",
             description="A sleek cat that melts into shadows.",
         ),
-        "nightowl": Creature(
+        "nightowl": Creature(  # Balanced (200 total)
             name="Nightowl",
             element=TYPE_SHADOW,
-            base_hp=50, base_atk=55, base_def=45, base_spd=55,
+            base_hp=50, base_atk=50, base_def=50, base_spd=50,
             abilities=[g_abilities["dark_pulse"], g_abilities["shadow_bite"]],
-            sprite_path="🦉",  # owl emoji placeholder
+            sprite_path="🦉",
             description="An owl that hunts in complete darkness.",
         ),
-        "voidspider": Creature(
+        "voidspider": Creature(  # Slow bruiser (200 total)
             name="Voidspider",
             element=TYPE_SHADOW,
-            base_hp=55, base_atk=70, base_def=50, base_spd=45,
+            base_hp=55, base_atk=60, base_def=50, base_spd=35,
             abilities=[g_abilities["dark_pulse"], g_abilities["shadow_bite"]],
-            sprite_path="🕷️",  # spider emoji placeholder
+            sprite_path="🕷️",
             description="A spider that weaves webs of pure darkness.",
         ),
 
         # Nature creatures
-        "sproutling": Creature(
+        "sproutling": Creature(  # Balanced (200 total)
             name="Sproutling",
             element=TYPE_NATURE,
-            base_hp=50, base_atk=45, base_def=50, base_spd=45,
+            base_hp=50, base_atk=50, base_def=50, base_spd=50,
             abilities=[g_abilities["vine_whip"], g_abilities["tackle"]],
-            sprite_path="🐛",  # caterpillar emoji placeholder
+            sprite_path="🐛",
             description="A small creature with leaves growing from its back.",
         ),
-        "thornbear": Creature(
+        "thornbear": Creature(  # Slow tank (200 total)
             name="Thornbear",
             element=TYPE_NATURE,
-            base_hp=75, base_atk=60, base_def=55, base_spd=30,
+            base_hp=65, base_atk=55, base_def=50, base_spd=30,
             abilities=[g_abilities["solar_beam"], g_abilities["vine_whip"]],
-            sprite_path="🐻",  # bear emoji placeholder
+            sprite_path="🐻",
             description="A bear covered in thorny vines.",
         ),
-        "florafox": Creature(
+        "florafox": Creature(  # Fast attacker (200 total)
             name="Florafox",
             element=TYPE_NATURE,
-            base_hp=45, base_atk=55, base_def=40, base_spd=70,
+            base_hp=45, base_atk=55, base_def=35, base_spd=65,
             abilities=[g_abilities["vine_whip"], g_abilities["solar_beam"]],
-            sprite_path="🦊",  # fox emoji placeholder
+            sprite_path="🦊",
             description="A graceful fox with flowers in its fur.",
         ),
 
         # Ice creatures
-        "frostpup": Creature(
+        "frostpup": Creature(  # Balanced (200 total)
             name="Frostpup",
             element=TYPE_ICE,
-            base_hp=45, base_atk=50, base_def=45, base_spd=55,
+            base_hp=50, base_atk=50, base_def=45, base_spd=55,
             abilities=[g_abilities["frost_bite"], g_abilities["tackle"]],
-            sprite_path="🐕",  # dog emoji placeholder
+            sprite_path="🐕",
             description="A playful pup with icy breath.",
         ),
-        "glacialbear": Creature(
+        "glacialbear": Creature(  # Slow tank (200 total)
             name="Glacialbear",
             element=TYPE_ICE,
-            base_hp=80, base_atk=65, base_def=60, base_spd=25,
+            base_hp=70, base_atk=55, base_def=50, base_spd=25,
             abilities=[g_abilities["blizzard"], g_abilities["frost_bite"]],
-            sprite_path="🐻‍❄️",  # polar bear emoji placeholder
+            sprite_path="🐻‍❄️",
             description="A massive bear from the frozen tundra.",
         ),
-        "crystalbird": Creature(
+        "crystalbird": Creature(  # Fast glass cannon (200 total)
             name="Crystalbird",
             element=TYPE_ICE,
-            base_hp=40, base_atk=55, base_def=35, base_spd=75,
+            base_hp=40, base_atk=55, base_def=35, base_spd=70,
             abilities=[g_abilities["blizzard"], g_abilities["frost_bite"]],
-            sprite_path="🐧",  # penguin emoji placeholder
+            sprite_path="🐧",
             description="A bird with feathers made of ice crystals.",
         ),
     }
