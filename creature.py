@@ -144,28 +144,28 @@ class Creature:
         return result
 
 
-# Some starter abilities
+# Some starter abilities (reduced power for longer battles)
 g_abilities = {
-    "tackle": Ability("Tackle", power=40, accuracy=100, element=TYPE_EARTH, description="A basic physical attack"),
-    "ember": Ability("Ember", power=40, accuracy=100, element=TYPE_FIRE, description="A small flame attack"),
-    "water_gun": Ability("Water Gun", power=40, accuracy=100, element=TYPE_WATER, description="A spray of water"),
-    "gust": Ability("Gust", power=40, accuracy=100, element=TYPE_AIR, description="A blast of wind"),
-    "flame_burst": Ability("Flame Burst", power=70, accuracy=90, element=TYPE_FIRE, description="A powerful fire blast"),
-    "tidal_wave": Ability("Tidal Wave", power=70, accuracy=90, element=TYPE_WATER, description="A crashing wave"),
-    "earthquake": Ability("Earthquake", power=70, accuracy=90, element=TYPE_EARTH, description="Shakes the ground"),
-    "hurricane": Ability("Hurricane", power=70, accuracy=90, element=TYPE_AIR, description="A violent windstorm"),
+    "tackle": Ability("Tackle", power=20, accuracy=100, element=TYPE_EARTH, description="A basic physical attack"),
+    "ember": Ability("Ember", power=20, accuracy=100, element=TYPE_FIRE, description="A small flame attack"),
+    "water_gun": Ability("Water Gun", power=20, accuracy=100, element=TYPE_WATER, description="A spray of water"),
+    "gust": Ability("Gust", power=20, accuracy=100, element=TYPE_AIR, description="A blast of wind"),
+    "flame_burst": Ability("Flame Burst", power=35, accuracy=90, element=TYPE_FIRE, description="A powerful fire blast"),
+    "tidal_wave": Ability("Tidal Wave", power=35, accuracy=90, element=TYPE_WATER, description="A crashing wave"),
+    "earthquake": Ability("Earthquake", power=35, accuracy=90, element=TYPE_EARTH, description="Shakes the ground"),
+    "hurricane": Ability("Hurricane", power=35, accuracy=90, element=TYPE_AIR, description="A violent windstorm"),
     # Lightning abilities
-    "spark": Ability("Spark", power=40, accuracy=100, element=TYPE_LIGHTNING, description="A small electric jolt"),
-    "thunderbolt": Ability("Thunderbolt", power=70, accuracy=90, element=TYPE_LIGHTNING, description="A powerful lightning strike"),
+    "spark": Ability("Spark", power=20, accuracy=100, element=TYPE_LIGHTNING, description="A small electric jolt"),
+    "thunderbolt": Ability("Thunderbolt", power=35, accuracy=90, element=TYPE_LIGHTNING, description="A powerful lightning strike"),
     # Shadow abilities
-    "shadow_bite": Ability("Shadow Bite", power=40, accuracy=100, element=TYPE_SHADOW, description="A bite from the darkness"),
-    "dark_pulse": Ability("Dark Pulse", power=70, accuracy=90, element=TYPE_SHADOW, description="A wave of dark energy"),
+    "shadow_bite": Ability("Shadow Bite", power=20, accuracy=100, element=TYPE_SHADOW, description="A bite from the darkness"),
+    "dark_pulse": Ability("Dark Pulse", power=35, accuracy=90, element=TYPE_SHADOW, description="A wave of dark energy"),
     # Nature abilities
-    "vine_whip": Ability("Vine Whip", power=40, accuracy=100, element=TYPE_NATURE, description="Strikes with thorny vines"),
-    "solar_beam": Ability("Solar Beam", power=70, accuracy=90, element=TYPE_NATURE, description="A beam of concentrated sunlight"),
+    "vine_whip": Ability("Vine Whip", power=20, accuracy=100, element=TYPE_NATURE, description="Strikes with thorny vines"),
+    "solar_beam": Ability("Solar Beam", power=35, accuracy=90, element=TYPE_NATURE, description="A beam of concentrated sunlight"),
     # Ice abilities
-    "frost_bite": Ability("Frost Bite", power=40, accuracy=100, element=TYPE_ICE, description="A freezing cold bite"),
-    "blizzard": Ability("Blizzard", power=70, accuracy=90, element=TYPE_ICE, description="A devastating snowstorm"),
+    "frost_bite": Ability("Frost Bite", power=20, accuracy=100, element=TYPE_ICE, description="A freezing cold bite"),
+    "blizzard": Ability("Blizzard", power=35, accuracy=90, element=TYPE_ICE, description="A devastating snowstorm"),
 }
 
 
