@@ -1,5 +1,6 @@
 import streamlit as st
 import numpy as np
+from creature import get_creature_templates, TYPE_FIRE, TYPE_WATER, TYPE_EARTH, TYPE_AIR, TYPE_LIGHTNING, TYPE_SHADOW, TYPE_NATURE, TYPE_ICE
 
 st.set_page_config(
     page_title="Creature Collector",
@@ -135,11 +136,38 @@ def show_battle():
 def show_collection():
     st.title("Creature Collection")
 
-    if len(st.session_state.player_creatures) == 0:
-        st.write("No creatures yet!")
-    else:
-        for creature in st.session_state.player_creatures:
-            st.write(f"- {creature}")
+    # Element display info
+    element_icons = {
+        TYPE_FIRE: "🔥", TYPE_WATER: "💧", TYPE_EARTH: "🌍", TYPE_AIR: "💨",
+        TYPE_LIGHTNING: "⚡", TYPE_SHADOW: "🌑", TYPE_NATURE: "🌿", TYPE_ICE: "❄️",
+    }
+    element_order = [TYPE_FIRE, TYPE_WATER, TYPE_EARTH, TYPE_AIR, TYPE_LIGHTNING, TYPE_SHADOW, TYPE_NATURE, TYPE_ICE]
+
+    templates = get_creature_templates()
+
+    # Group creatures by element
+    creatures_by_element = {e: [] for e in element_order}
+    for name, creature in templates.items():
+        creatures_by_element[creature.element].append(creature)
+
+    # Display creatures by element
+    for element in element_order:
+        creatures = creatures_by_element[element]
+        if not creatures:
+            continue
+
+        st.subheader(f"{element_icons[element]} {element.capitalize()}")
+
+        cols = st.columns(3)
+        for i, creature in enumerate(creatures):
+            with cols[i % 3]:
+                st.markdown(f"### {creature.sprite_path} {creature.name}")
+                st.caption(creature.description)
+                st.text(f"HP: {creature.base_hp}  ATK: {creature.base_atk}")
+                st.text(f"DEF: {creature.base_def}  SPD: {creature.base_spd}")
+                abilities_str = ", ".join([a.name for a in creature.abilities])
+                st.text(f"Moves: {abilities_str}")
+                st.divider()
 
     if st.button("Back to Menu"):
         st.session_state.screen = SCREEN_MENU
